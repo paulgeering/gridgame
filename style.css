@@ -33,7 +33,7 @@ H1 {
     background: #FF0000;
 }
 
-#grid TR TD.white {
+#grid TR TD.empty {
     background: #BBB;
 }
 
@@ -41,7 +41,7 @@ H1 {
     background: #888;
 }
 
-#grid TR TD.black {
+#grid TR TD.filled {
     background: #444;
 }
 

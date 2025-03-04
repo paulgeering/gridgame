@@ -1,6 +1,8 @@
 
 var grid = document.getElementById("grid");
-var clues = [['','1','','3','4','','','2','2','','2','1','','','2','','','','',''],
+var clipGame = '';
+var game = {
+	"clues": [['','1','','3','4','','','2','2','','2','1','','','2','','','','',''],
 ['1','2','3','','','','','','3','','','','','','','','3','1','0',''],
 ['','','','3','3','','1','1','2','','','2','1','','','3','2','2','','1'],
 ['3','','','','','1','','0','','1','','','3','2','','','','2','3','2'],
@@ -19,15 +21,33 @@ var clues = [['','1','','3','4','','','2','2','','2','1','','','2','','','','','
 ['','3','4','','2','','5','','','4','3','3','','','6','','','','',''],
 ['2','','3','','','5','','6','','5','','3','4','5','4','','3','5','7',''],
 ['3','','','','','4','','','6','','','4','','3','','','','5','','4'],
-['','','4','3','2','','4','4','4','4','4','','','','3','4','4','4','4','']];
-
+['','','4','3','2','','4','4','4','4','4','','','','3','4','4','4','4','']],
+	"state": [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
+}
 generateGrid();
 
 
 function generateGrid() {
 	
-
-
   grid.innerHTML="";
 
   for (var i=0; i<20; i++) {
@@ -39,45 +59,46 @@ function generateGrid() {
       cell = row.insertCell(j);
 
       cell.onclick = function() { clickCell(this); };
-
-      var cellStatus = document.createAttribute("cell-status");       
-
-      cellStatus.value = "neutral";             
-
-      cell.setAttributeNode(cellStatus);
-	  
-	  cell.className = cellStatus.value;
-	  cell.innerHTML = clues[i][j];
+  	  cell.innerHTML = game.clues[i][j];
 
     }
 
   }
-		updateGrid();
+  updateGrid();
 
 }
 
 function clickCell(cell) {
-	switch(cell.getAttribute("cell-status")) {
-		case "neutral":
-			cell.setAttribute("cell-status", "black");
-			break;
-		case "black":
-			cell.setAttribute("cell-status", "white");
-			break;
-		case "white":
-			cell.setAttribute("cell-status", "neutral");
-			break;
-		default:
-			cell.setAttribute("cell-status", "neutral");
-	}
-	cell.className = cell.getAttribute("cell-status");
+	
+	var currentRow = cell.parentNode.rowIndex;
+	var currentColumn = cell.cellIndex;
+	var newState = game.state[currentRow][currentColumn];
+	
+	newState++
+	newState = (newState % 3);
+
+	game.state[currentRow][currentColumn] = newState;
 	updateGrid();
+}
+
+function classMap(cellState){
+	switch(cellState) {
+		case 0:
+			return "neutral";
+		case 1:
+			return "filled";
+		case 2:
+			return "empty";
+		default:
+			return "neutral";
+	}
+	return "neutral";
 }
 
 function updateGrid(){
   for (var i=0; i<20; i++) {
     for (var j=0; j<20; j++) {
-		if (grid.rows[i].cells[j].innerHTML===(''+countBlackCells(i,j)))
+		if (game.clues[i][j]===(''+countFilledCells(i,j)))
 		{
 			grid.rows[i].cells[j].style.color = '#070';
 			grid.rows[i].cells[j].style.borderColor = '#070';
@@ -88,14 +109,13 @@ function updateGrid(){
 			grid.rows[i].cells[j].style.color = 'black';
 			grid.rows[i].cells[j].style.borderColor = 'black';
 			grid.rows[i].cells[j].style.fontWeight= "normal";
-		}			
+		}
+		grid.rows[i].cells[j].className = classMap(game.state[i][j]);
     }
   }
 }
-function saveGrid(){
-saveToClip(JSON.stringify(clues));
-
-
+function saveGame(){
+	saveToClip(JSON.stringify(game));
 }
 
 function saveToClip(newClip){
@@ -103,46 +123,64 @@ function saveToClip(newClip){
 		if (result.state === "granted" || result.state === "prompt") {
 			navigator.clipboard.writeText(newClip).then(
 			() => {
-				alert("Grid state saved to clipboard");
+				alert("Game saved to clipboard");
 			},
 			() => {
-				alert("Unable to save grid state to clipboard");
+				alert("Unable to save game to clipboard");
 			},
 			);
 		} else{
-			alert("Unable to save grid state to clipboard. Permission Denied");
+			alert("Unable to save game to clipboard. Permission Denied");
 		}
 	});
 }
 
-function loadGrid(){
-  for (var i=0; i<20; i++) {
-    for (var j=0; j<20; j++) {
-		if (grid.rows[i].cells[j].innerHTML===(''+countBlackCells(i,j)))
-		{
-			grid.rows[i].cells[j].style.color = '#070';
-			grid.rows[i].cells[j].style.borderColor = '#070';
-			grid.rows[i].cells[j].style.fontWeight= "bolder";
+function loadFromClip(){
+	
+	navigator.permissions.query({ name: "clipboard-write" }).then((result) => {
+		if (result.state === "granted" || result.state === "prompt") {
+			navigator.clipboard.readText().then(
+			(clipText) => {
+				alert("Game retrieved from clipboard");
+				clipGame= importGame(clipText);
+			},
+			() => {
+				alert("Unable to read clipboard");
+			},
+			);
+		} else{
+			alert("Unable to read clipboard. Permission Denied");
 		}
-		else
-		{
-			grid.rows[i].cells[j].style.color = 'black';
-			grid.rows[i].cells[j].style.borderColor = 'black';
-			grid.rows[i].cells[j].style.fontWeight= "normal";
-		}			
-    }
-  }
+	});
 }
 
 
 
-function countBlackCells(cellRow,cellCol){
+function loadGame(){
+	loadFromClip();
+}
+
+function importGame(gameText){
+	if(isValidGame(gameText))
+	{
+		game = JSON.parse(gameText);
+		updateGrid();
+		return;
+	}
+	alert("Game data not valid");
+}
+
+function isValidGame(gameText){
+	return(gameText.match(/^{"clues":\[(?:\[(?:"[0-9]?",?){20}\],?){20}\],"state":\[(?:\[(?:[0-2],?){20}\],?){20}\]}$/g));
+}
+
+function countFilledCells(cellRow,cellCol){
 	var cellCount =0;
     for (var i=Math.max(cellRow-1,0); i<=Math.min(cellRow+1,19); i++) {
 
       for(var j=Math.max(cellCol-1,0); j<=Math.min(cellCol+1,19); j++) {
 
-        if (grid.rows[i].cells[j].getAttribute("cell-status")=="black") cellCount++;
+        if (game.state[i][j] === 1) cellCount++;
 
       }
 
@@ -151,57 +189,3 @@ function countBlackCells(cellRow,cellCol){
 }
 
 
-function clickCellm(cell) {
-
-  
-  //Check if the end-user clicked on a mine
-  if (cell.getAttribute("data-mine")=="true") {
-
-
-  } else {
-
-    cell.className="clicked";
-
-    //Count and display the number of adjacent mines
-
-    var mineCount=0;
-
-    var cellRow = cell.parentNode.rowIndex;
-
-    var cellCol = cell.cellIndex;
-
-    //alert(cellRow + " " + cellCol);
-
-    for (var i=Math.max(cellRow-1,0); i<=Math.min(cellRow+1,9); i++) {
-
-      for(var j=Math.max(cellCol-1,0); j<=Math.min(cellCol+1,9); j++) {
-
-        if (grid.rows[i].cells[j].getAttribute("data-mine")=="true") mineCount++;
-
-      }
-
-    }
-
-    cell.innerHTML=mineCount;
-
-    if (mineCount==0) { 
-
-      //Reveal all adjacent cells as they do not have a mine
-
-      for (var i=Math.max(cellRow-1,0); i<=Math.min(cellRow+1,9); i++) {
-
-        for(var j=Math.max(cellCol-1,0); j<=Math.min(cellCol+1,9); j++) {
-
-          //Recursive Call
-
-          if (grid.rows[i].cells[j].innerHTML=="") clickCell(grid.rows[i].cells[j]);
-
-        }
-
-      }
-
-    }
-    checkLevelCompletion();
-  }
-
-}
